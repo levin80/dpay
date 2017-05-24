@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--add by iBatisTool HB_ACCOUNT-->
+<sqlMap namespace="com.mi.dpay.beans.HbAccount">
+    <typeAlias alias="account" type="com.mi.dpay.beans.HbAccount" />
+	<resultMap id="result" class="account">
+		<result property="id" column="ID"/>
+		<result property="accid" column="ACCID"/>
+		<result property="status" column="STATUS"/>
+		<result property="passwd" column="PASSWD"/>
+		<result property="createtime" column="CREATETIME"/>
+		<result property="canceltime" column="CANCELTIME"/>
+		<result property="modifytime" column="MODIFYTIME"/>
+		<result property="tranPasswd" column="TRAN_PASSWD"/>
+	</resultMap>
+	<resultMap id="feeResult" class="account" extends="result">
+		<result column="accid" property="cash" select="com.mi.dpay.beans.HbAccCash.findHbAccCashByAccId"/>
+		<result column="accid" property="favour" select="com.mi.dpay.beans.HbAccFavour.findHbAccFavourByAccId"/>
+	</resultMap>
+	<!-- add Condition HB_ACCOUNT-->
+	<sql id="HB_ACCOUNTCondition">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="id"> ID=#id#</isNotEmpty>
+			<isNotEmpty prepend="and" property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="and" property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="and" property="passwd"> PASSWD=#passwd#</isNotEmpty>
+			<isNotEmpty prepend="and" property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="canceltime"> CANCELTIME=#canceltime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="tranPasswd"> TRAN_PASSWD=#tranPasswd#</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	
+	<select id="findAccountByAccId" parameterClass="String" resultMap="feeResult">
+		select * from HB_ACCOUNT ACC where ACC.accid = #value#
+	</select>
+	<!--保存主账户信息-->
+	<insert id="insertHbAccount" parameterClass="account">
+  	  <![CDATA[ 	insert into  HB_ACCOUNT(
+				ACCID,
+				STATUS,
+				PASSWD,
+				CREATETIME,
+				CANCELTIME,
+				MODIFYTIME,
+				TRAN_PASSWD) values(
+				#accid#,
+				#status#,
+				#passwd#,
+				#createtime#,
+				#canceltime#,
+				#modifytime#,
+				#tranPasswd#)
+	 ]]>
+	</insert>
+	<!--查询所有账户信息-->
+	<select id="findHbAccount" resultMap="result" parameterClass="account">
+ 		select 
+				HB_ACCOUNT.ID,
+				HB_ACCOUNT.ACCID,
+				HB_ACCOUNT.STATUS,
+				HB_ACCOUNT.PASSWD,
+				HB_ACCOUNT.CREATETIME,
+				HB_ACCOUNT.CANCELTIME,
+				HB_ACCOUNT.MODIFYTIME,
+				HB_ACCOUNT.TRAN_PASSWD
+			from
+			HB_ACCOUNT
+		<include refid="HB_ACCOUNTCondition"/>
+	</select>
+	<!-- 根据主键查询账户信息-->
+	<select id="findHbAccountById" resultMap="result" parameterClass="java.lang.String">
+ 		select 
+				HB_ACCOUNT.ID,
+				HB_ACCOUNT.ACCID,
+				HB_ACCOUNT.STATUS,
+				HB_ACCOUNT.PASSWD,
+				HB_ACCOUNT.CREATETIME,
+				HB_ACCOUNT.CANCELTIME,
+				HB_ACCOUNT.MODIFYTIME,
+				HB_ACCOUNT.TRAN_PASSWD
+			from
+			HB_ACCOUNT
+		WHERE HB_ACCOUNT.ID=#id#
+	</select>
+	<!--修改主账户信息-->
+	<update id="updateHbAccount" parameterClass="account">
+  		 update   HB_ACCOUNT
+		<dynamic prepend="set">
+			<isNotEmpty prepend="," property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="," property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="," property="passwd"> PASSWD=#passwd#</isNotEmpty>
+			<isNotEmpty prepend="," property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="," property="canceltime"> CANCELTIME=#canceltime#</isNotEmpty>
+			<isNotEmpty prepend="," property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="," property="tranPasswd"> TRAN_PASSWD=#tranPasswd#</isNotEmpty>
+		</dynamic>
+  		where 
+ 	 		ID=#id#
+	</update>
+	<!-- add method deleteHbAccount-->
+	<delete id="deleteHbAccount" parameterClass="java.lang.String">
+  		 delete   HB_ACCOUNT
+		WHERE ID=#id#
+	</delete>
+	
+	<!-- 根据用户编号查询账户信息 -->
+	<select id="findAccountByUserId" parameterClass="java.lang.String" resultMap="result">
+	    SELECT * FROM HB_ACCOUNT WHERE HB_ACCOUNT.ACCID=(SELECT HB_USER_ACCOUNT_RELATED.ACCOUNTID
+        FROM HB_USER_ACCOUNT_RELATED WHERE HB_USER_ACCOUNT_RELATED.USERID=#userId#)
+	</select>
+</sqlMap>

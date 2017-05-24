@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="com.mi.dpay.beans.HbUser">
+
+	<typeAlias alias="user" type="com.mi.dpay.beans.HbUser" />
+
+	<resultMap id="userResult" class="user">
+	    <result property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="fullName" column="fullname" />
+		<result property="gender" column="gender" />
+		<result property="email" column="email" />
+		<result property="status" column="status" />
+		<result property="registerTime" column="register_time" />
+		<result property="registerIp" column="register_ip" />
+		<result property="lastLoginTime" column="last_login_time" />
+		<result property="lastLoginIp" column="last_login_ip" />
+		<result property="loginCount" column="login_count" />
+		<result property="isAdmin" column="is_admin" />
+        <result property="sysFlag" column="sys_flag"/>
+		<result property="roles" column="user_id"
+			select="com.mi.dpay.beans.HbRole.findRoleByuserId" />
+			
+		<result property="currLevel" column="curr_level"/>
+		<result property="userUpid" column="user_upid"/>
+		<result property="rate" column="rate"/>
+		<result property="realRate" column="real_rate"/>
+		<result property="hasChild" column="HAS_CHILD"/>
+		<result property="accountId" column="ACCOUNT_ID"/>
+		<result property="per" column="PER"/>
+		
+	</resultMap>
+	<resultMap id="userAccountResult" class="user" extends="userResult">
+		<result property="accounts"  column="account_id" select="com.mi.dpay.beans.HbAccount.findAccountByAccId"/>
+	</resultMap>
+
+
+	<select id="userLogin" parameterClass="user" resultMap="userResult">
+		select * from HB_USER
+		<isNotEmpty property="username">
+			where USERNAME=#username#
+		</isNotEmpty>
+		<isNotEmpty property="email">
+			where EMAIL=#email#
+		</isNotEmpty>
+		and PASSWORD=#password#
+	</select>
+
+	<!--查找用户名密码 -->
+	<select id="findTsUserByNameAndPassword" parameterClass="map"
+		resultMap="userResult">
+		select * from HB_USER where USERNAME =#name# and
+		PASSWORD=#password#
+	</select>
+	<!-- 用户总数 -->
+	<select id="getHbUserTotalCount" parameterClass="map"
+		resultClass="Integer">
+		select count(1) from HB_USER u where  1=1
+		<dynamic>
+            <isNotEmpty property="searchStatus">
+                <![CDATA[
+	        		and u.status = #searchStatus#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchRole">
+                <![CDATA[
+	        		or u.USER_ID in (SELECT ur.USER_ID FROM HB_USERROLE ur where ur.role_id = #searchRole#)
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchEmail">
+                <![CDATA[
+	    		or	u.email like CONCAT('%',#searchEmail#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchName">
+                <![CDATA[
+	    		or	u.username like CONCAT('%',#searchName#,'%')
+	    		]]>
+            </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 用户分页查询 -->
+	<select id="getHbUserPage" parameterClass="map" resultMap="userResult">
+		select * from HB_USER  u where  1=1
+        <dynamic>
+            <isNotEmpty property="searchStatus">
+                <![CDATA[
+	        		and u.status = #searchStatus#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchRole">
+                <![CDATA[
+	        		or u.USER_ID in (SELECT ur.USER_ID FROM HB_USERROLE ur where ur.role_id = #searchRole#)
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchEmail">
+                <![CDATA[
+	    		or	u.email like CONCAT('%',#searchEmail#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchName">
+                <![CDATA[
+	    		or	u.username like CONCAT('%',#searchName#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="orderByVal">
+                order by $orderByVal$
+            </isNotEmpty>
+        </dynamic>
+		LIMIT #startNum#,#pageSize#
+	</select>
+	
+	
+		<select id="getHbUserAgentTotalCount" parameterClass="map" resultClass="Integer">
+		select count(1) from HB_USER u where  1=1
+		<dynamic>
+            <isNotEmpty property="searchStatus">
+                <![CDATA[
+	        		and u.status = #searchStatus#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchRole">
+                <![CDATA[
+	        		or u.USER_ID in (SELECT ur.USER_ID FROM HB_USERROLE ur where ur.role_id = #searchRole#)
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchEmail">
+                <![CDATA[
+	    		or	u.email like CONCAT('%',#searchEmail#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchName">
+                <![CDATA[
+	    		or	u.username like CONCAT('%',#searchName#,'%')
+	    		]]>
+            </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 用户分页查询 -->
+	<select id="getHbUserAgentPage" parameterClass="map" resultMap="userAccountResult">
+		select * from HB_USER  u where  1=1
+        <dynamic>
+            <isNotEmpty property="searchStatus">
+                <![CDATA[
+	        		and u.status = #searchStatus#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchRole">
+                <![CDATA[
+	        		or u.USER_ID in (SELECT ur.USER_ID FROM HB_USERROLE ur where ur.role_id = #searchRole#)
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchEmail">
+                <![CDATA[
+	    		or	u.email like CONCAT('%',#searchEmail#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="searchName">
+                <![CDATA[
+	    		or	u.username like CONCAT('%',#searchName#,'%')
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="userId">
+                <![CDATA[
+	    		and	u.user_id = #userId#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="orderByVal">
+                order by $orderByVal$
+            </isNotEmpty>
+        </dynamic>
+		LIMIT #startNum#,#pageSize#
+	</select>
+	
+	<select id="getChildPage" parameterClass="map" resultMap="userAccountResult">
+		select * from HB_USER  u where  1=1 
+        <dynamic>
+            <isNotEmpty property="userUpid">
+                <![CDATA[
+	    		and	u.user_upid = #userUpid#
+	    		]]>
+            </isNotEmpty>
+            <isNotEmpty property="orderByVal">
+                order by $orderByVal$
+            </isNotEmpty>
+        </dynamic>
+	</select>
+
+
+	<!-- 查找用户 -->
+	<select id="findHbUserByName" parameterClass="String" resultMap="userResult">
+		select * from HB_USER where USERNAME =#name#
+	</select>
+    <!-- 根据id查找用户 -->
+    <select id="findUserById" parameterClass="String" resultMap="userResult">
+       select * from HB_USER where USER_ID=#id#
+    </select>
+    
+     <select id="findUserByEmail" parameterClass="String" resultMap="userResult">
+        select * from HB_USER where email = #value#
+    </select>
+    
+    
+	<insert id="saveHbUser" parameterClass="user">
+		insert into HB_USER
+		(user_id, username, password, fullname , gender,
+		email, status, register_time, register_ip, last_login_time,
+		last_login_ip, login_count, is_admin,sys_flag,curr_level,user_upid,account_id,rate,real_rate,has_child,per)
+		values
+		(#userId#, #username#,
+		#password#, #fullName#, #gender#, #email#, #status#, #registerTime#,
+		#registerIp#, #lastLoginTime#, #lastLoginIp#, #loginCount#, #isAdmin#,#sysFlag#,#currLevel#,#userUpid#,#accountId#,#rate#,#realRate#,#hasChild#,#per#)
+	</insert>
+
+	<select id="findTsUserByName" parameterClass="String" resultMap="userResult">
+		select * from HB_USER where USERNAME =#name#
+	</select>
+	
+	 <select id="findHbUserByUUID" parameterClass="String" resultMap="userResult">
+		select * from HB_USER where user_id = #uuid#
+    </select>
+
+
+    <update id="changeTsUserStatus" parameterClass="map">
+       update HB_USER set status=#status# where USER_ID in
+       <iterate open="(" close=")" conjunction="," property="ids">
+         #ids[]#
+       </iterate>
+    </update>
+    
+    <delete id="deleteUserRoleByuserId" parameterClass="String">
+       delete from HB_USERROLE where USER_ID=#value#
+    </delete>
+
+    <select id="getUserById" parameterClass="Integer" resultMap="userResult">
+        select * from HB_USER where id = #value#
+    </select>
+    
+     
+    
+    
+    <select id="getUserNameById" parameterClass="Integer" resultClass="String">
+        select username from HB_USER where id = #value#
+    </select>
+
+    <select id="getFullNameById" parameterClass="Integer" resultClass="String">
+        select fullname from HB_USER where id = #value#
+    </select>
+
+	<delete id="deleteUserByIds" parameterClass="map">
+	  delete from HB_USER where USER_ID in 
+	  <iterate open="(" close=")" conjunction="," property="ids">
+	    #ids[]#
+	  </iterate>
+	</delete>
+	
+	<delete id="batchedelUserRoleByuserId" parameterClass="map">
+	  delete from HB_USERROLE where USER_ID in
+	  <iterate open="(" close=")" conjunction="," property="ids">
+	   #ids[]#
+	  </iterate>
+	</delete>
+	
+	<update id="updateUser" parameterClass="user">
+	  update HB_USER set
+	  username=#username#, password=#password#, fullname=#fullName#, gender= #gender#, email=#email#, status=#status#,sys_flag=#sysFlag#,has_child=#hasChild#,per=#per#
+	  where user_id=#userId#
+	</update>
+	
+	<insert id="saveUserRole" parameterClass="map">
+	  insert into HB_USERROLE(user_id,role_id) values(#userId#,#roleId#)
+	</insert>
+	
+	<select id="getAllUsers" resultMap="userResult">
+	  select * from HB_USER
+	</select>
+	
+	<delete id="deleteUserRoleByroleId" parameterClass="String">
+    	delete from HB_USERROLE where role_id=#value#
+    </delete>
+	
+	<delete id="batchedelUserRoleByroleId" parameterClass="String">
+    	delete from HB_USERROLE where role_id in ($value$)
+    </delete>
+    
+    <update id="recordUserInfo" parameterClass="user">
+       update HB_USER set
+       LAST_LOGIN_TIME = #lastLoginTime#
+       where USER_ID=#userId#
+    </update>
+    
+	 <select id="findHbUserByID" parameterClass="Integer" resultMap="userResult">
+		select * from HB_USER where id = #id#
+    </select>
+</sqlMap>

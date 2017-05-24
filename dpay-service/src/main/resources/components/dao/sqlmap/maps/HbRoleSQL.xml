@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="com.mi.dpay.beans.HbRole">
+	<typeAlias alias="hbRole" type="com.mi.dpay.beans.HbRole" />
+
+	<resultMap id="roleResult" class="hbRole">
+	   <result column="id" property="id" />
+		<result column="role_id" property="roleId" />
+		<result column="priority" property="priority" />
+		<result column="role_name" property="name" />
+		<result column="is_super" property="isSuper" />
+		<result column="role_note" property="description" />
+		<result column="status" property="status" />
+	</resultMap>
+	
+	<resultMap id="roleResultHigh" class="hbRole">
+		<result column="id" property="id" />
+		<result column="role_id" property="roleId" />
+		<result column="role_name" property="name" />
+		<result column="role_id" property="perms" select="com.mi.dpay.beans.HbRole.findPermByroleId"/>
+	</resultMap>
+
+	<select id="findRoleByuserId" parameterClass="String" resultMap="roleResult">
+		select tr.* from HB_ROLE tr, HB_USERROLE tu where tu.user_id = #value#
+		and tu.role_id = tr.role_id
+	</select>
+
+	<select id="listRole" resultMap="roleResult">
+		select * from HB_ROLE where STATUS = 1
+	</select>
+	<insert id="saveUserRole" parameterClass="map">
+		insert into HB_USERROLE  (user_id,role_id) values (#userId#,#roleId#)
+	</insert>
+	
+    <select id="getRoleTotalCount" parameterClass="String" resultClass="Integer">
+		select count(1) from HB_ROLE tr
+		<dynamic>
+        	<isNotEmpty property="value">where tr.role_name like CONCAT('%',#value#,'%')</isNotEmpty>
+   		</dynamic>
+    </select>
+     <select id="getRolePage" parameterClass="map" resultMap="roleResult"> 
+         select tr.* from HB_ROLE tr
+         <dynamic>
+	         <isNotEmpty property="search">
+	           where tr.role_name like CONCAT('%',#search#,'%')
+	          </isNotEmpty>
+	          <isEqual property="orderBy" compareValue="0">
+	          order by  tr.role_id
+	          </isEqual> 
+	          <isEqual property="orderBy" compareValue="1">
+	          order by nlssort(tr.role_name ,'NLS_sort=schinese_pinyin_m') desc
+	          </isEqual>
+	          <isEqual property="orderByStatus" compareValue="0">
+	          
+	          </isEqual>
+	          limit #startNum#,#pageSize#
+        </dynamic>
+	</select>
+	<select id="findRoleByName" parameterClass="String" resultMap="roleResult">
+		select * from HB_ROLE where role_name =#name#
+    </select>
+    <insert id="saveRole" parameterClass="hbRole">
+		insert into HB_ROLE
+		(role_id,priority,role_name,is_super,role_note,status)
+		values
+		(#roleId#,#priority#,#name#,#isSuper#,#description#,#status#)
+	</insert>
+	
+	<select id="getRoleById" parameterClass="Long" resultMap="roleResultHigh">
+		select id,role_id,role_name from HB_ROLE where id = #id#
+    </select>
+    <!-- portal 按照类型取用户角色 -->
+    <select id="getRoleByType" parameterClass="Long" resultMap="roleResultHigh">
+		select id,role_id,role_name from HB_ROLE where TYPE = #value#
+    </select>
+    
+     <select id="findPermByroleId" resultClass="String" parameterClass="String">
+		select perm_id from HB_ROLEPERM where role_id = #roleId#
+    </select>
+    
+    <insert id="saveRolePerm" parameterClass="map">
+		insert into HB_ROLEPERM (perm_id,role_id) values (#permId#,#roleId#)
+	</insert>
+	
+	<delete id="deletePermRoleByroleId" parameterClass="String">
+    	delete from HB_ROLEPERM where role_id=#value#
+    </delete>
+
+
+	<delete id="deletePermRoleBypermId" parameterClass="String">
+		delete from HB_ROLEPERM where perm_id=#value#
+	</delete>
+	
+	
+	<!-- 会展云前台业务查询 -->
+	<select id="findHzRoleByHzuserId" parameterClass="String" resultMap="roleResult">
+		select tr.* from HB_ROLE tr, HB_USERORLE_PORTAL tu where tu.user_id = #userId#
+		and tu.role_id = tr.role_id
+	</select>
+	
+	 <select id="findPermissionBypermId" resultClass="String" parameterClass="String">
+		select * from HB_PERMISSION  where perm_id = #permId#
+      </select>
+	
+	<delete id="batchedelPermRoleBypermId" parameterClass="String">
+      delete from HB_ROLEPERM where perm_id in ($value$)
+	</delete>
+	
+	<select id="findRoleById" parameterClass="String" resultMap="roleResult">
+       select * from HB_ROLE where role_id = #id#	 
+ 	</select>
+ 	
+ 	<update id="updateRole1" parameterClass="hbRole">
+ 	    update HB_ROLE 
+ 	   	set role_name=#name#,role_note=#description#,status=#status#
+		where
+		role_id = #roleId#
+ 	</update>
+ 	
+ 	<update id="changeRoleStatus" parameterClass="map">
+ 	  update HB_ROLE set status = #status# where role_id in
+ 	  <iterate open="(" close=")" conjunction="," property="ids">
+ 	   #ids[]#
+ 	  </iterate>
+ 	</update>
+ 	
+ 	<delete id="deleteRoleByIds" parameterClass="String">
+ 	   delete from HB_ROLE where role_id in ($ids$)
+ 	</delete>
+ 	
+ 	<select id="getNumByIds" parameterClass="String" resultClass="String">
+		select role.role_id from HB_USERROLE role where role.role_id in ($ids$)
+	</select>
+	
+	 <delete id="batchedelPermRoleByroleId" parameterClass="String">
+    	delete from HB_ROLEPERM where role_id in ($ids$)
+    </delete>
+    <delete id="deleteRoleByIds2" parameterClass="map">
+        delete from HB_ROLE where role_id in
+        <iterate open="(" close=")" conjunction="," property="ids">
+          #ids[]#
+        </iterate>
+    </delete>
+    
+    
+    <select id="listRoleByFlag" parameterClass="String" resultMap="roleResult">
+		SELECT * FROM HB_ROLE WHERE STATUS = 1 
+	</select>
+
+    <select id="getRoleListByFlagAndStatus" parameterClass="map" resultMap="roleResult">
+		SELECT * FROM HB_ROLE WHERE STATUS = #status# 
+	</select>
+</sqlMap>

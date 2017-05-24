@@ -1,0 +1,95 @@
+package com.mi.dpay.web.controller;
+
+import com.iss.hzclouds.util.Config;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+
+/**
+ * HttpClien工具类
+ * 
+ * @author (xwlig@isoftstone.com) <p> ;/p>
+ * @version 1.0 2015-1-26 下午4:44:02
+ */
+@Component
+public class HttpClientUtil {
+	private static Log log = LogFactory.getLog(HttpClientUtil.class);
+	
+	
+	private static String PUBLISH_URL = "publishUrl";
+	private static final int MAX_TIME = 5000;// 超时时间5 秒
+	@Resource
+	Config config;
+
+	/**
+	 * @author (xwlig@isoftstone.com) <p> ;/p>
+	 * @version 1.0 2015-1-26 下午4:44:21
+	 * @param env
+	 * @param path
+	 * @param me
+	 * @param param
+	 * @throws org.apache.commons.httpclient.HttpException
+	 * @throws java.io.IOException void
+	 */
+
+	public  String httpGet(String path, String params) throws HttpException, IOException {
+
+		StringBuffer url = new StringBuffer();
+		/* 1 生成 HttpClinet 对象并设置参数 */
+		HttpClient httpClient = new HttpClient();
+		// 设置 Http 连接超时为5秒
+		httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(MAX_TIME);
+		/* 2 生成 GetMethod 对象并设置参数 */
+		GetMethod getMethod = new GetMethod((String)config.get(PUBLISH_URL) + "/" + path + "?" + params);
+		// 设置 get 请求超时为 5 秒
+		getMethod.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, MAX_TIME);
+
+		// 设置请求重试处理，用的是默认的重试处理：请求三次
+		getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
+		String retString = "";
+		/* 3 执行 HTTP GET 请求 */
+		try {
+			int statusCode = httpClient.executeMethod(getMethod);
+			/* 4 判断访问的状态码 */
+			if (statusCode != HttpStatus.SC_OK) {
+				log.debug(">>请求出错: " + getMethod.getStatusLine());
+			}
+			/* 5 处理 HTTP 响应内容 */
+			// HTTP响应头部信息，这里简单打印
+			Header[] headers = getMethod.getResponseHeaders();
+			for (Header h : headers)
+				log.debug(h.getName() + "------------ " + h.getValue());
+			// 读取 HTTP 响应内容，这里简单打印网页内容
+			byte[] responseBody = getMethod.getResponseBody();// 读取为字节数组
+			retString = new String(responseBody, "UTF-8");
+			log.debug(">>response String :" + retString);
+
+			// 读取为 InputStream，在网页内容数据量大时候推荐使用
+			// InputStream response = getMethod.getResponseBodyAsStream();
+		} catch (HttpException e) {
+			log.error("请检查输入的URL!");// 发生致命的异常，可能是协议不对或者返回的内容有问题
+			e.printStackTrace();
+		} catch (IOException e) {
+			// 发生网络异常
+			log.error("发生网络异常!");
+			e.printStackTrace();
+		} finally {
+			/* 6 .释放连接 */
+			getMethod.releaseConnection();
+		}
+		return retString;
+	}
+
+	public static void main(String args[]) throws HttpException, IOException {
+		String path = "publish/publishDetail.do";//url地址
+		String params = "itemNo=2020";   //请求参数
+		HttpClientUtil client = new HttpClientUtil();
+		client.httpGet(path, params);
+	}
+}

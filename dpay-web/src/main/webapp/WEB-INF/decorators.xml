@@ -1,0 +1,9 @@
+<decorators defaultdir="/clouds/console/decorators">
+	<excludes>
+		<pattern>*/login.jsp*</pattern>
+	    <pattern>*/console/enter.do*</pattern>
+	</excludes>
+	<decorator name="default" page="default.jsp">
+		<pattern>/*</pattern>
+	</decorator>
+</decorators>

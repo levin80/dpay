@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--add by iBatisTool HB_ACC_CHARGE-->
+<sqlMap namespace="com.mi.dpay.beans.HbAccChargeRecord">
+    <typeAlias alias="chargeRecord" type="com.mi.dpay.beans.HbAccChargeRecord" />
+	<resultMap id="recordResult" class="com.mi.dpay.beans.HbAccChargeRecord">
+		<result property="id" column="ID"/>
+		<result property="chargeNo" column="CHARGE_NO"/>
+		<result property="accountId1" column="ACCOUNT_ID1"/>
+		<result property="accountId2" column="ACCOUNT_ID2"/>
+		<result property="accoutType" column="ACCOUT_TYPE"/>
+		<result property="balance" column="BALANCE"/>
+		<result property="type" column="TYPE"/>
+		<result property="fee" column="FEE"/>
+		<result property="createTime" column="CREATE_TIME"/>
+		<result property="memo" column="MEMO"/>
+		<result property="chargeway" column="CHARGEWAY"/>
+		<result property="userId1" column="USER_ID1"/>
+		<result property="userId2" column="USER_ID2"/>
+		<result property="originNo" column="ORIGIN_NO"/>
+		<result property="chargeStatus" column="CHARGESTATE"/>
+		<result property="email" column="EMAIL"/>
+		<result property="userName" column="USERNAME"/>
+		<result property="opUser" column="OP_USER"/>
+		
+	</resultMap>
+	<insert id="saveChargeRecord" parameterClass="chargeRecord">
+		INSERT INTO  HB_ACC_CHARGE_RECORD  (  CHARGE_NO ,  ACCOUNT_ID1 ,  ACCOUT_TYPE ,  BALANCE ,  TYPE ,  FEE ,  CREATE_TIME ,  MEMO ,  CHARGEWAY ,  USER_ID1 ,  ORIGIN_NO ,CHARGESTATE,ACCOUNT_ID2,USER_ID2,USERNAME,EMAIL,OP_USER) 
+		    VALUES ( #chargeNo#, #accountId1#, #accoutType#, #balance#, #type#, #fee#, #createTime#, #memo#, #chargeway#, #userId1#, #originNo#, #chargeStatus#,#accountId2#,#userId2#,#userName#,#email#,#opUser#);
+	</insert>
+	
+	<select id="getAccChargeRecordTotalCount" parameterClass="map" resultClass="Integer">
+	   SELECT COUNT(*) FROM HB_ACC_CHARGE_RECORD WHERE OP_USER = #userId1#
+	   <dynamic>
+			<isNotEmpty property="chargeType" prepend=" and ">
+				 TYPE =#chargeType#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<select id="findPageAccChargeRecordByUserId" parameterClass="map" resultMap="recordResult">
+	  SELECT * FROM HB_ACC_CHARGE_RECORD WHERE OP_USER = #userId1#
+	  <dynamic>
+			<isNotEmpty property="chargeType" prepend=" and ">
+				 TYPE=#chargeType#
+			</isNotEmpty>
+		</dynamic>
+       ORDER BY  CREATE_TIME DESC LIMIT #startNum#,#pageSize# 
+	</select>
+	<select id="findAccChargeRecordById" parameterClass="String" resultMap="recordResult">
+	 SELECT * FROM HB_ACC_CHARGE_RECORD WHERE CHARGE_NO = #value#
+	</select>
+    <select id="getTotalCount" parameterClass="map" resultClass="Integer">
+		select count(1) from HB_ACC_CHARGE_RECORD where 1=1 
+		<isNotNull prepend="AND" property="userId1">
+			USER_ID1 = #userId1#
+		</isNotNull>
+		<isNotNull prepend="AND" property="type">
+			type = #type#
+		</isNotNull>
+		<isNotNull prepend="AND" property="startTime">
+			 <![CDATA[ CREATE_TIME >= #startTime# ]]>
+		</isNotNull>
+		<isNotNull prepend="AND" property="endTime">
+			<![CDATA[ CREATE_TIME < #endTime# ]]>
+		</isNotNull>
+    </select>
+    
+    <select id="getTotalByPage" parameterClass="map" resultMap="recordResult">
+		select * from HB_ACC_CHARGE_RECORD where 1=1 
+		<isNotNull prepend="AND" property="userId1">
+			USER_ID1 = #userId1#
+		</isNotNull>
+		<isNotNull prepend="AND" property="type">
+			type = #type#
+		</isNotNull>
+		<isNotNull prepend="AND" property="startTime">
+			<![CDATA[ CREATE_TIME >= #startTime# ]]>
+		</isNotNull>
+		<isNotNull prepend="AND" property="endTime">
+			 <![CDATA[ CREATE_TIME < #endTime# ]]>
+		</isNotNull>
+		limit #beginNum#,#endNum#
+    </select>
+
+	<update id="updateAccChargeRecordStatus" parameterClass="map">
+	  UPDATE HB_ACC_CHARGE_RECORD SET CHARGESTATE = 1,BALANCE = BALANCE + #amount# WHERE CHARGE_NO = #flowid#
+	</update>
+	<delete id="deleteAccChargeByChargeNo" parameterClass="String">
+	DELETE FROM HB_ACC_CHARGE_RECORD WHERE CHARGE_NO = #value#
+	</delete>
+
+</sqlMap>

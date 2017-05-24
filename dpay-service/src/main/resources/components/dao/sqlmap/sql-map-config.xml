@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<settings enhancementEnabled="true" maxTransactions="20"
+		maxRequests="32" maxSessions="10" useStatementNamespaces="true"
+		defaultStatementTimeout="3" />
+
+	<!-- Identify all SQL Map XML files to be loaded by this SQL map. Relative 
+		to classpath -->
+
+	<typeAlias alias="clobHandler"
+		type="org.springframework.orm.ibatis.support.ClobStringTypeHandler" />
+		
+	<sqlMap resource="components/dao/sqlmap/maps/HbUserSQL.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbRoleSQL.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbPermissionSQL.xml" />
+	
+	<!-- 账户信息 -->
+	<sqlMap resource="components/dao/sqlmap/maps/HbAccount.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbAccCash.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbAccFavour.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbAccChargeRecordSQL.xml" />
+	<sqlMap resource="components/dao/sqlmap/maps/HbSku.xml" />
+	
+	<!-- 订单信息-->
+	<sqlMap resource="components/dao/sqlmap/maps/HbOrder.xml" />
+</sqlMapConfig>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="com.mi.dpay.beans.HbPermission">
+
+	<typeAlias alias="HbPermission" type="com.mi.dpay.beans.HbPermission" />
+
+	<resultMap id="permissionResult" class="HbPermission">
+		<result column="id" property="id" />
+		<result column="perm_id" property="permId" />
+		<result column="perm_upid" property="permUpid" />
+		<result column="perm_name" property="permName" />
+		<result column="perm_url" property="permUrl" />
+		<result column="dependent_url" property="dependentUrl" />
+		<result column="perm_type" property="permType" />
+		<result column="perm_use" property="permUse" />
+		<result column="perm_order" property="permOrder" />
+		<result column="perm_note" property="permNote" />
+	</resultMap>
+
+	<select id="listAllPermission" resultMap="permissionResult">
+		select * from HB_PERMISSION order by PERM_ORDER
+	</select>
+
+	<select id="findPermissionByName" parameterClass="map" resultMap="permissionResult">
+		select * from HB_PERMISSION where perm_upid=#permUpid# and perm_name =#permName# order by PERM_ORDER
+	</select>
+
+	<insert id="savePermission" parameterClass="HbPermission">
+		insert into
+		HB_PERMISSION
+		(perm_id,perm_upid,perm_type,perm_name,perm_url,dependent_url,perm_use,perm_order,perm_note)
+		values
+		(#permId#,#permUpid#,#permType#,#permName#,#permUrl#,#dependentUrl#,#permUse#,#permOrder#,#permNote#)
+	</insert>
+
+	<select id="findPermissionById" parameterClass="String" resultMap="permissionResult">
+		select * from HB_PERMISSION where perm_id = #id# order by PERM_ORDER
+	</select>
+	
+	<select id="findPermissionByUUID" parameterClass="String" resultMap="permissionResult">
+		select * from HB_PERMISSION where perm_id = #value# order by PERM_ORDER
+	</select>
+	<select id="listAllPermissionByExcludesPermId" parameterClass="String" resultMap="permissionResult"> 
+		select * from HB_PERMISSION where perm_id!=#value# order by PERM_ORDER
+	</select>
+
+	<update id="updatePermission" parameterClass="HbPermission">
+		update
+		HB_PERMISSION
+		set
+		perm_upid=#permUpid#,perm_type=#permType#,perm_name=#permName#,perm_url=#permUrl#,dependent_url=#dependentUrl#,perm_use=#permUse#,perm_order=#permOrder#,perm_note=#permNote#
+		where
+		id = #id#
+	</update>
+
+	<select id="listnextPermBylastPermId" parameterClass="String" resultMap="permissionResult">
+		select * from HB_PERMISSION where perm_upid=#value# order by PERM_ORDER
+	</select>
+
+	<delete id="deletePermissionByIds" parameterClass="map">
+		delete from HB_PERMISSION where perm_id in 
+		<iterate open="(" close=")" conjunction="," property="ids">
+		  #ids[]#
+		</iterate>
+	</delete>
+	
+	<delete id="deletePermissionByIds2" parameterClass="String">
+	   delete from HB_PERMISSION where perm_id in ($ids$)
+	</delete>
+	
+	<!-- 根据角色编号查询角色信息 -->
+	<select id="findPermissionByRoleId" parameterClass="java.lang.String" resultMap="permissionResult">
+	    SELECT * FROM HB_PERMISSION WHERE perm_id in (select perm_id from HB_ROLEPERM WHERE ROLE_ID=#roleId#)
+	</select>
+	
+	<update id="changePermissionStatus" parameterClass="map">
+	  update HB_PERMISSION set perm_use=#status# where perm_id in
+	  <iterate open="(" close=")" conjunction="," property="ids">
+	    #ids[]#
+	  </iterate>
+	</update>
+
+	<select id="findUserPermByuserId" parameterClass="java.lang.String"   resultMap="permissionResult">
+		SELECT *  FROM HB_PERMISSION C WHERE C.PERM_USE = 1   AND C.PERM_ID IN (
+            SELECT DISTINCT B.PERM_ID  FROM HB_ROLEPERM B WHERE B.ROLE_ID IN (
+                   SELECT A.ROLE_ID  FROM HB_USERROLE A  WHERE A.USER_ID =#VALUE#  AND A.ROLE_ID IN (
+                         SELECT D.ROLE_ID  FROM HB_ROLE D   WHERE D.STATUS = 1  )))
+	</select>
+
+    <select id="findAccUserPermByUserId" parameterClass="java.lang.String"   resultMap="permissionResult">
+		SELECT *  FROM HB_PERMISSION C WHERE C.PERM_USE = 1   AND C.PERM_ID IN (
+            SELECT DISTINCT B.PERM_ID  FROM HB_ROLEPERM B WHERE B.ROLE_ID IN (
+                   SELECT A.HZ_ROLE_ID  FROM HB_USERORLE_PORTAL A  WHERE A.HZ_USER_ID =#VALUE#  AND A.HZ_ROLE_ID IN (
+                         SELECT D.ROLE_ID  FROM HB_ROLE D   WHERE D.STATUS = 1  )))
+	</select>
+	
+	
+</sqlMap>

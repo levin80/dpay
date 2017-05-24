@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--add by iBatisTool HB_ACC_FAVOUR-->
+<sqlMap namespace="com.mi.dpay.beans.HbAccFavour">
+    <typeAlias alias="favour" type="com.mi.dpay.beans.HbAccFavour" />
+	<resultMap id="result" class="com.mi.dpay.beans.HbAccFavour">
+		<result property="cashFavourAccid" column="CASH_FAVOUR_ACCID"/>
+		<result property="accid" column="ACCID"/>
+		<result property="status" column="STATUS"/>
+		<result property="createtime" column="CREATETIME"/>
+		<result property="modifytime" column="MODIFYTIME"/>
+		<result property="cash" column="CASH"/>
+	</resultMap>
+	<!-- add Condition HB_ACC_FAVOUR-->
+	<sql id="HB_ACC_FAVOURCondition">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="cashFavourAccid"> CASH_FAVOUR_ACCID=#cashFavourAccid#</isNotEmpty>
+			<isNotEmpty prepend="and" property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="and" property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="and" property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="cash"> CASH=#cash#</isNotEmpty>
+		</dynamic>
+	</sql>
+	<!--新增账户优惠券信息-->
+	<insert id="insertHbAccFavour" parameterClass="favour">
+  		insert into  HB_ACC_FAVOUR(
+				ACCID,
+				STATUS,
+				CREATETIME,
+				MODIFYTIME,
+				CASH) values(
+				#accid#,
+				#status#,
+				#createtime#,
+				#modifytime#,
+				#cash#)</insert>
+	<!--查询所有优惠券账户信息-->
+	<select id="findHbAccFavour" resultMap="result" parameterClass="favour">
+ 		select 
+				HB_ACC_FAVOUR.CASH_FAVOUR_ACCID,
+				HB_ACC_FAVOUR.ACCID,
+				HB_ACC_FAVOUR.STATUS,
+				HB_ACC_FAVOUR.CREATETIME,
+				HB_ACC_FAVOUR.MODIFYTIME,
+				HB_ACC_FAVOUR.CASH
+			from
+			HB_ACC_FAVOUR
+		<include refid="HB_ACC_FAVOURCondition"/>
+	</select>
+	<!--根据主账户查询信息-->
+	<select id="findHbAccFavourById" resultMap="result" parameterClass="java.lang.String">
+ 		select 
+				HB_ACC_FAVOUR.CASH_FAVOUR_ACCID,
+				HB_ACC_FAVOUR.ACCID,
+				HB_ACC_FAVOUR.STATUS,
+				HB_ACC_FAVOUR.CREATETIME,
+				HB_ACC_FAVOUR.MODIFYTIME,
+				HB_ACC_FAVOUR.CASH
+			from
+			HB_ACC_FAVOUR
+		WHERE HB_ACC_FAVOUR.CASH_FAVOUR_ACCID=#id#
+	</select>
+	<!-- add method updateHbAccFavour-->
+	<update id="updateHbAccFavour" parameterClass="favour">
+  		 update   HB_ACC_FAVOUR
+		<dynamic prepend="set">
+			<isNotEmpty prepend="," property="cashFavourAccid"> CASH_FAVOUR_ACCID=#cashFavourAccid#</isNotEmpty>
+			<isNotEmpty prepend="," property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="," property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="," property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="," property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="," property="cash"> CASH=#cash#</isNotEmpty>
+		</dynamic>
+  		where 
+ 	 		CASH_FAVOUR_ACCID=#cashFavourAccid#
+	</update>
+	<!-- add method deleteHbAccFavour-->
+	<delete id="deleteHbAccFavour" parameterClass="java.lang.String">
+  		 delete   HB_ACC_FAVOUR
+		WHERE CASH_FAVOUR_ACCID=#id#
+	</delete>
+	<!-- 根据用户主账户编号查询优惠账户信息 -->
+	<select id="findHbAccFavourByAccId" resultMap="result" parameterClass="java.lang.String">
+ 		select 
+				HB_ACC_FAVOUR.CASH_FAVOUR_ACCID,
+				HB_ACC_FAVOUR.ACCID,
+				HB_ACC_FAVOUR.STATUS,
+				HB_ACC_FAVOUR.CREATETIME,
+				HB_ACC_FAVOUR.MODIFYTIME,
+				HB_ACC_FAVOUR.CASH
+			from
+			HB_ACC_FAVOUR
+		WHERE HB_ACC_FAVOUR.ACCID=#value#
+	</select>
+</sqlMap>

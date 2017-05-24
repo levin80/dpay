@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--add by iBatisTool HB_ACC_CASH-->
+<sqlMap namespace="com.mi.dpay.beans.HbAccCash">
+    <typeAlias alias="cash" type="com.mi.dpay.beans.HbAccCash" />
+	<resultMap id="result" class="cash">
+		<result property="cashAccid" column="CASH_ACCID"/>
+		<result property="accid" column="ACCID"/>
+		<result property="status" column="STATUS"/>
+		<result property="createtime" column="CREATETIME"/>
+		<result property="modifytime" column="MODIFYTIME"/>
+		<result property="cash" column="CASH"/>
+	</resultMap>
+	<!-- add Condition HB_ACC_CASH-->
+	<sql id="HB_ACC_CASHCondition">
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="cashAccid"> CASH_ACCID=#cashAccid#</isNotEmpty>
+			<isNotEmpty prepend="and" property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="and" property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="and" property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="and" property="cash"> CASH=#cash#</isNotEmpty>
+		</dynamic>
+	</sql>
+	<!--保存现金账户信息-->
+	<insert id="insertHbAccCash" parameterClass="cash">
+  		insert into  HB_ACC_CASH(
+				ACCID,
+				STATUS,
+				CREATETIME,
+				MODIFYTIME,
+				CASH) values(
+				#accid#,
+				#status#,
+				#createtime#,
+				#modifytime#,
+				#cash#)</insert>
+	<!-- 查询所有现金账户-->
+	<select id="findHbAccCash" resultMap="result" parameterClass="cash">
+ 		select 
+				HB_ACC_CASH.CASH_ACCID,
+				HB_ACC_CASH.ACCID,
+				HB_ACC_CASH.STATUS,
+				HB_ACC_CASH.CREATETIME,
+				HB_ACC_CASH.MODIFYTIME,
+				HB_ACC_CASH.CASH
+			from
+			HB_ACC_CASH
+		<include refid="HB_ACC_CASHCondition"/>
+	</select>
+	<!-- 根据主键查询账户信息-->
+	<select id="findHbAccCashByAccId" resultMap="result" parameterClass="java.lang.String">
+ 		select 
+				HB_ACC_CASH.CASH_ACCID,
+				HB_ACC_CASH.ACCID,
+				HB_ACC_CASH.STATUS,
+				HB_ACC_CASH.CREATETIME,
+				HB_ACC_CASH.MODIFYTIME,
+				HB_ACC_CASH.CASH
+			from
+			HB_ACC_CASH
+		WHERE HB_ACC_CASH.ACCID=#value#
+	</select>
+	<!--根据主键修改现金账户信息-->
+	<update id="updateHbAccCash" parameterClass="cash">
+  		 update   HB_ACC_CASH
+		<dynamic prepend="set">
+			<isNotEmpty prepend="," property="accid"> ACCID=#accid#</isNotEmpty>
+			<isNotEmpty prepend="," property="status"> STATUS=#status#</isNotEmpty>
+			<isNotEmpty prepend="," property="createtime"> CREATETIME=#createtime#</isNotEmpty>
+			<isNotEmpty prepend="," property="modifytime"> MODIFYTIME=#modifytime#</isNotEmpty>
+			<isNotEmpty prepend="," property="cash"> CASH=#cash#</isNotEmpty>
+		</dynamic>
+  		where 
+ 	 		CASH_ACCID=#cashAccid#
+	</update>
+	<!-- add method deleteHbAccCash-->
+	<delete id="deleteHbAccCash" parameterClass="java.lang.String">
+  		 delete   HB_ACC_CASH WHERE CASH_ACCID=#cashAccid#
+	</delete>
+	
+	<!-- 根据用户名查询现金账户信息 -->
+	<select id="findAccountCashByUserId" parameterClass="java.lang.String" resultMap="result">
+	    SELECT * FROM HB_ACC_CASH WHERE HB_ACC_CASH.ACCID =(SELECT HB_USER.ACCOUNT_ID
+             FROM HB_USER WHERE HB_USER.USER_ID=#userId#)
+	</select>
+	
+	<update id ="reduceCash" parameterClass="map">
+	    UPDATE HB_ACC_CASH  SET CASH = CASH-#fee# ,MODIFYTIME = #modifytime# WHERE ACCID = #accid#
+	</update>
+	
+</sqlMap>

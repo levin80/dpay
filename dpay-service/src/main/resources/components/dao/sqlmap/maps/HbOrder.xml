@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!--add by iBatisTool HB_ACC_CHARGE-->
+<sqlMap namespace="com.mi.dpay.beans.HbOrder">
+    <typeAlias alias="order" type="com.mi.dpay.beans.HbOrder" />
+	<resultMap id="orderResult" class="order">
+		<result property="id" column="ID"/>
+		<result property="orderId" column="ORDER_ID"/>
+		<result property="skuId" column="SKU_ID"/>
+		<result property="skuName" column="SKU_NAME"/>
+		<result property="phone" column="PHONE"/>
+		<result property="fee" column="FEE"/>
+		<result property="cost" column="COST"/>
+		<result property="profits" column="PROFITS"/>
+		<result property="payment" column="PAYMENT"/>
+		<result property="payPlatform" column="PAY_PLATFORM"/>
+		<result property="isPaid" column="IS_PAID"/>
+		<result property="state" column="STATE"/>
+		<result property="paymentNo" column="PAYMENT_NO"/>
+		<result property="orderTime" column="ORDER_TIME"/>
+		<result property="payTime" column="PAY_TIME"/>
+		<result property="depositTime" column="DEPOSIT_TIME"/>
+		<result property="successTime" column="SUCCESS_TIME"/>
+		<result property="userId" column="USER_ID"/>
+		
+	</resultMap>
+	<insert id="saveOrder" parameterClass="order">
+		INSERT INTO HB_ORDER (ORDER_ID, SKU_ID, SKU_NAME, PHONE, FEE, COST, PROFITS, PAYMENT, PAY_PLATFORM, 
+		                      IS_PAID, STATE, PAYMENT_NO, ORDER_TIME, PAY_TIME, DEPOSIT_TIME, SUCCESS_TIME, USER_ID) 
+	    VALUES (#orderId#, #skuId#, #skuName#, #phone#, #fee#, #cost#, #profits#, #payment#, #payPlatform#, 
+	            #isPaid#, #state#, #paymentNo#, #orderTime#, #payTime#, #depositTime#, #successTime#, #userId#)
+	</insert>
+
+	<select id="findOrderById" parameterClass="String" resultMap="orderResult">
+	 SELECT * FROM HB_ORDER WHERE ORDER_ID = #value#
+	</select>
+	
+	
+    <select id="getOrderTotalCount" parameterClass="map" resultClass="Integer">
+		select count(1) from HB_ORDER where 1=1 
+		<isNotNull prepend="AND" property="userId1">
+			USER_ID = #userId#
+		</isNotNull>
+    </select>
+    
+    <select id="findOrderPageByUserId" parameterClass="map" resultMap="orderResult">
+		select * from HB_ORDER where 1=1 
+		<isNotNull prepend="AND" property="userId1">
+			USER_ID = #userId#
+		</isNotNull>
+		  order by id desc limit #startNum#,#pageSize#
+    </select>
+    
+    
+    <select id="getOrderId" resultClass="Long">
+		select  nextval('SEQORDERNO')
+	</select>
+
+</sqlMap>
